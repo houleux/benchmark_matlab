@@ -12,14 +12,16 @@ cfgLDPCEnc = ldpcEncoderConfig(H);
 cfgLDPCDec_l = ldpcDecoderConfig(H, "layered-bp");
 cfgLDPCDec = ldpcDecoderConfig(H);
 
+
+M = 2;
 maxnumiter = 5;
-snr = linspace(-5, 5, 10);
+snr = linspace(0, 10, 10);
 numframes = 100000;
 data = randi([0 1], cfgLDPCEnc.NumInformationBits, numframes);
 ndata = cfgLDPCDec.NumInformationBits * numframes;
 encodedData = ldpcEncode(data, cfgLDPCEnc);
 
-modSignal = 1 - 2*encodedData;
+modSignal = pskmod(encodedData, M);
 
 ber_flood = zeros(1, size(snr, 2));
 ber_layered = zeros(1, size(snr, 2));
@@ -27,7 +29,7 @@ ber_layered = zeros(1, size(snr, 2));
 for i = 1 : size(snr, 2)
     [rxsig, noisevar] = awgn(modSignal, snr(i));
     
-    llrout = 2 * rxsig / noisevar;
+    llrout = pskdemod(modSignal, M, OutputType='llr');
     
     rxbits_flood = ldpcDecode(llrout, cfgLDPCDec, maxnumiter);
     rxbits_layered = ldpcDecode(llrout, cfgLDPCDec_l, maxnumiter);
