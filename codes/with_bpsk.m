@@ -29,7 +29,7 @@ ber_layered = zeros(1, size(snr, 2));
 for i = 1 : size(snr, 2)
     [rxsig, noisevar] = awgn(modSignal, snr(i));
     
-    llrout = pskdemod(modSignal, M, OutputType='llr');
+    llrout = pskdemod(rxsig, M, 'OutputType', 'llr', 'NoiseVariance', noisevar);
     
     rxbits_flood = ldpcDecode(llrout, cfgLDPCDec, maxnumiter);
     rxbits_layered = ldpcDecode(llrout, cfgLDPCDec_l, maxnumiter);
